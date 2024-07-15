@@ -17,7 +17,13 @@ import { useConfig, useToastStyle } from '../../../../hooks';
 import { LanguageFlag } from '../../../../utils/language';
 import { store } from '../../../../utils/store';
 import { osType } from '../../../../utils/env';
-import { ServiceSourceType, ServiceType, whetherAvailableService } from '../../../../utils/service_instance';
+import {
+    ServiceSourceType,
+    ServiceType,
+    getServiceName,
+    getServiceSouceType,
+    whetherAvailableService,
+} from '../../../../utils/service_instance';
 
 export default function History() {
     const [collectionServiceList] = useConfig('collection_service_list', []);
@@ -153,15 +159,15 @@ export default function History() {
                             }) && (
                                 <TableRow key={item.id}>
                                     <TableCell>
-                                        {item.service.startsWith('plugin') ? (
+                                        {getServiceSouceType(item.service) === ServiceSourceType.PLUGIN ? (
                                             <img
-                                                src={pluginList['translate'][item.service].icon}
+                                                src={pluginList['translate'][getServiceName(item.service)].icon}
                                                 className='h-[18px] w-[18px] my-auto mr-[8px]'
                                                 draggable={false}
                                             />
                                         ) : (
                                             <img
-                                                src={`${builtinServices[item.service].info.icon}`}
+                                                src={`${builtinServices[getServiceName(item.service)].info.icon}`}
                                                 className='h-[18px] w-[18px] my-auto mr-[8px]'
                                                 draggable={false}
                                             />
@@ -233,15 +239,18 @@ export default function History() {
                                 <>
                                     <ModalHeader>
                                         <div className='flex justify-start'>
-                                            {selectedItem.service.startsWith('plugin') ? (
+                                            {getServiceSouceType(selectedItem.service) === ServiceSourceType.PLUGIN ? (
                                                 <img
-                                                    src={pluginList['translate'][selectedItem.service].icon}
+                                                    src={
+                                                        pluginList['translate'][getServiceName(selectedItem.service)]
+                                                            .icon
+                                                    }
                                                     className='h-[24px] w-[24px] my-auto'
                                                     draggable={false}
                                                 />
                                             ) : (
                                                 <img
-                                                    src={`${builtinServices[selectedItem.service].info.icon}`}
+                                                    src={`${builtinServices[getServiceName(selectedItem.service)].info.icon}`}
                                                     className='h-[24px] w-[24px] m-auto mr-[8px]'
                                                     draggable={false}
                                                 />
@@ -274,19 +283,22 @@ export default function History() {
                                         </Button>
                                         <ButtonGroup>
                                             {collectionServiceList &&
-                                                collectionServiceList.map((serviceName) => {
+                                                collectionServiceList.map((instanceKey) => {
                                                     return (
                                                         <Button
-                                                            key={serviceName}
+                                                            key={instanceKey}
                                                             isIconOnly
                                                             variant='light'
                                                             onPress={async () => {
-                                                                if (serviceName.startsWith('plugin')) {
+                                                                if (
+                                                                    getServiceSouceType(instanceKey) ===
+                                                                    ServiceSourceType.PLUGIN
+                                                                ) {
                                                                     const pluginConfig =
-                                                                        (await store.get(serviceName)) ?? {};
+                                                                        (await store.get(instanceKey)) ?? {};
                                                                     let [func, utils] = await invoke_plugin(
                                                                         'collection',
-                                                                        serviceName
+                                                                        getServiceName(instanceKey)
                                                                     );
                                                                     func(selectedItem.text, selectedItem.result, {
                                                                         config: pluginConfig,
@@ -307,10 +319,17 @@ export default function History() {
                                                                         }
                                                                     );
                                                                 } else {
-                                                                    builtinCollectionServices[serviceName]
+                                                                    const instanceConfig =
+                                                                        (await store.get(instanceKey)) ?? {};
+                                                                    builtinCollectionServices[
+                                                                        getServiceName(instanceKey)
+                                                                    ]
                                                                         .collection(
                                                                             selectedItem.text,
-                                                                            selectedItem.result
+                                                                            selectedItem.result,
+                                                                            {
+                                                                                config: instanceConfig,
+                                                                            }
                                                                         )
                                                                         .then(
                                                                             (_) => {
@@ -334,10 +353,14 @@ export default function History() {
                                                         >
                                                             <img
                                                                 src={
-                                                                    serviceName.startsWith('plugin')
-                                                                        ? pluginList['collection'][serviceName].icon
-                                                                        : builtinCollectionServices[serviceName].info
-                                                                              .icon
+                                                                    getServiceSouceType(instanceKey) ===
+                                                                    ServiceSourceType.PLUGIN
+                                                                        ? pluginList['collection'][
+                                                                              getServiceName(instanceKey)
+                                                                          ].icon
+                                                                        : builtinCollectionServices[
+                                                                              getServiceName(instanceKey)
+                                                                          ].info.icon
                                                                 }
                                                                 className='h-[24px] w-[24px]'
                                                             />

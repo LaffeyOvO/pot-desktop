@@ -1,7 +1,8 @@
-import { readTextFile } from "@tauri-apps/api/fs";
 import { appCacheDir, appConfigDir, join } from "@tauri-apps/api/path";
+import { readBinaryFile, readTextFile } from "@tauri-apps/api/fs";
 import { invoke } from "@tauri-apps/api/tauri";
-import { fetch } from "@tauri-apps/api/http";
+import Database from "tauri-plugin-sql-api";
+import { http } from "@tauri-apps/api";
 import CryptoJS from "crypto-js";
 import { osType } from "./env";
 
@@ -20,12 +21,16 @@ export async function invoke_plugin(pluginType, pluginName) {
         });
     }
     const utils = {
-        tauriFetch: fetch,
+        tauriFetch: http.fetch,
+        http,
+        readBinaryFile,
+        readTextFile,
+        Database,
         CryptoJS,
         run,
-        cacheDir,
-        pluginDir,
-        osType
+        cacheDir, // String
+        pluginDir, // String
+        osType,// "Windows_NT", "Darwin", "Linux"
     }
     return [eval(`${script} ${pluginType}`), utils];
 }

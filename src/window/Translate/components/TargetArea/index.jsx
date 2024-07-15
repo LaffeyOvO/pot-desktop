@@ -24,7 +24,6 @@ import toast, { Toaster } from 'react-hot-toast';
 import { MdContentCopy } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import Database from 'tauri-plugin-sql-api';
-import { invoke } from '@tauri-apps/api';
 import { GiCycle } from 'react-icons/gi';
 import { useTheme } from 'next-themes';
 import { useAtomValue } from 'jotai';
@@ -43,8 +42,10 @@ import * as builtinTtsServices from '../../../../services/tts';
 import { store } from '../../../../utils/store';
 import {
     INSTANCE_NAME_CONFIG_KEY,
+    ServiceSourceType,
     getDisplayInstanceName,
     getServiceName,
+    getServiceSouceType,
     whetherPluginService,
 } from '../../../../utils/service_instance';
 
@@ -317,8 +318,8 @@ export default function TargetArea(props) {
 
     // refresh tts config
     useEffect(() => {
-        if (ttsServiceList && ttsServiceList[0].startsWith('plugin')) {
-            readTextFile(`plugins/tts/${ttsServiceList[0]}/info.json`, {
+        if (ttsServiceList && getServiceSouceType(ttsServiceList[0]) === ServiceSourceType.PLUGIN) {
+            readTextFile(`plugins/tts/${getServiceName(ttsServiceList[0])}/info.json`, {
                 dir: BaseDirectory.AppConfig,
             }).then((infoStr) => {
                 setTtsPluginInfo(JSON.parse(infoStr));
@@ -328,25 +329,29 @@ export default function TargetArea(props) {
 
     // handle tts speak
     const handleSpeak = async () => {
-        const ttsServiceName = ttsServiceList[0];
-        if (ttsServiceName.startsWith('plugin')) {
-            const config = (await store.get(ttsServiceName)) ?? {};
+        const instanceKey = ttsServiceList[0];
+        if (getServiceSouceType(instanceKey) === ServiceSourceType.PLUGIN) {
+            const pluginConfig = serviceInstanceConfigMap[instanceKey];
             if (!(targetLanguage in ttsPluginInfo.language)) {
                 throw new Error('Language not supported');
             }
-            let [func, utils] = await invoke_plugin('tts', ttsServiceName);
+            let [func, utils] = await invoke_plugin('tts', getServiceName(instanceKey));
             let data = await func(result, ttsPluginInfo.language[targetLanguage], {
-                config,
+                config: pluginConfig,
                 utils,
             });
             speak(data);
         } else {
-            if (!(targetLanguage in builtinTtsServices[ttsServiceName].Language)) {
+            if (!(targetLanguage in builtinTtsServices[getServiceName(instanceKey)].Language)) {
                 throw new Error('Language not supported');
             }
-            let data = await builtinTtsServices[ttsServiceName].tts(
+            const instanceConfig = serviceInstanceConfigMap[instanceKey];
+            let data = await builtinTtsServices[getServiceName(instanceKey)].tts(
                 result,
-                builtinTtsServices[ttsServiceName].Language[targetLanguage]
+                builtinTtsServices[getServiceName(instanceKey)].Language[targetLanguage],
+                {
+                    config: instanceConfig,
+                }
             );
             speak(data);
         }
@@ -787,19 +792,23 @@ export default function TargetArea(props) {
                             </Tooltip>
                             {/* available collection service instance */}
                             {collectionServiceList &&
-                                collectionServiceList.map((collectionServiceName) => {
+                                collectionServiceList.map((collectionServiceInstanceName) => {
                                     return (
                                         <Button
-                                            key={collectionServiceName}
+                                            key={collectionServiceInstanceName}
                                             isIconOnly
                                             variant='light'
                                             size='sm'
                                             onPress={async () => {
-                                                if (collectionServiceName.startsWith('plugin')) {
-                                                    const pluginConfig = (await store.get(collectionServiceName)) ?? {};
+                                                if (
+                                                    getServiceSouceType(collectionServiceInstanceName) ===
+                                                    ServiceSourceType.PLUGIN
+                                                ) {
+                                                    const pluginConfig =
+                                                        serviceInstanceConfigMap[collectionServiceInstanceName];
                                                     let [func, utils] = await invoke_plugin(
                                                         'collection',
-                                                        collectionServiceName
+                                                        getServiceName(collectionServiceInstanceName)
                                                     );
                                                     func(sourceText.trim(), result.toString(), {
                                                         config: pluginConfig,
@@ -815,8 +824,14 @@ export default function TargetArea(props) {
                                                         }
                                                     );
                                                 } else {
-                                                    builtinCollectionServices[collectionServiceName]
-                                                        .collection(sourceText, result)
+                                                    const instanceConfig =
+                                                        serviceInstanceConfigMap[collectionServiceInstanceName];
+                                                    builtinCollectionServices[
+                                                        getServiceName(collectionServiceInstanceName)
+                                                    ]
+                                                        .collection(sourceText, result, {
+                                                            config: instanceConfig,
+                                                        })
                                                         .then(
                                                             (_) => {
                                                                 toast.success(t('translate.add_collection_success'), {
@@ -832,9 +847,14 @@ export default function TargetArea(props) {
                                         >
                                             <img
                                                 src={
-                                                    collectionServiceName.startsWith('plugin')
-                                                        ? pluginList['collection'][collectionServiceName].icon
-                                                        : builtinCollectionServices[collectionServiceName].info.icon
+                                                    getServiceSouceType(collectionServiceInstanceName) ===
+                                                    ServiceSourceType.PLUGIN
+                                                        ? pluginList['collection'][
+                                                              getServiceName(collectionServiceInstanceName)
+                                                          ].icon
+                                                        : builtinCollectionServices[
+                                                              getServiceName(collectionServiceInstanceName)
+                                                          ].info.icon
                                                 }
                                                 className='h-[16px] w-[16px]'
                                             />

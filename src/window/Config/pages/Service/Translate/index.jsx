@@ -12,9 +12,6 @@ import ServiceItem from './ServiceItem';
 import SelectModal from './SelectModal';
 import ConfigModal from './ConfigModal';
 
-import * as builtinTranslateServices from '../../../../../services/translate';
-import { ServiceSourceType, whetherAvailableService } from '../../../../../utils/service_instance';
-
 export default function Translate(props) {
     const { pluginList } = props;
     const {
@@ -31,6 +28,7 @@ export default function Translate(props) {
         'bing',
         'yandex',
         'google',
+        'ecdict',
     ]);
 
     const { t } = useTranslation();
@@ -86,42 +84,35 @@ export default function Translate(props) {
                                 {...provided.droppableProps}
                             >
                                 {translateServiceInstanceList !== null &&
-                                    translateServiceInstanceList
-                                        .filter((instanceKey) => {
-                                            return whetherAvailableService(instanceKey, {
-                                                [ServiceSourceType.BUILDIN]: builtinTranslateServices,
-                                                [ServiceSourceType.PLUGIN]: pluginList,
-                                            });
-                                        })
-                                        .map((x, i) => {
-                                            return (
-                                                <Draggable
-                                                    key={x}
-                                                    draggableId={x}
-                                                    index={i}
-                                                >
-                                                    {(provided) => {
-                                                        return (
-                                                            <div
-                                                                ref={provided.innerRef}
-                                                                {...provided.draggableProps}
-                                                            >
-                                                                <ServiceItem
-                                                                    {...provided.dragHandleProps}
-                                                                    key={x}
-                                                                    serviceInstanceKey={x}
-                                                                    pluginList={pluginList}
-                                                                    deleteServiceInstance={deleteServiceInstance}
-                                                                    setCurrentConfigKey={setCurrentConfigKey}
-                                                                    onConfigOpen={onConfigOpen}
-                                                                />
-                                                                <Spacer y={2} />
-                                                            </div>
-                                                        );
-                                                    }}
-                                                </Draggable>
-                                            );
-                                        })}
+                                    translateServiceInstanceList.map((x, i) => {
+                                        return (
+                                            <Draggable
+                                                key={x}
+                                                draggableId={x}
+                                                index={i}
+                                            >
+                                                {(provided) => {
+                                                    return (
+                                                        <div
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                        >
+                                                            <ServiceItem
+                                                                {...provided.dragHandleProps}
+                                                                key={x}
+                                                                serviceInstanceKey={x}
+                                                                pluginList={pluginList}
+                                                                deleteServiceInstance={deleteServiceInstance}
+                                                                setCurrentConfigKey={setCurrentConfigKey}
+                                                                onConfigOpen={onConfigOpen}
+                                                            />
+                                                            <Spacer y={2} />
+                                                        </div>
+                                                    );
+                                                }}
+                                            </Draggable>
+                                        );
+                                    })}
                             </div>
                         )}
                     </Droppable>
@@ -146,7 +137,7 @@ export default function Translate(props) {
             <SelectPluginModal
                 isOpen={isSelectPluginOpen}
                 onOpenChange={onSelectPluginOpenChange}
-                setConfigName={setCurrentConfigKey}
+                setCurrentConfigKey={setCurrentConfigKey}
                 onConfigOpen={onConfigOpen}
                 pluginType='translate'
                 pluginList={pluginList}

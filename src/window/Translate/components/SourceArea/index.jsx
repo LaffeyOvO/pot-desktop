@@ -13,7 +13,7 @@ import { HiTranslate } from 'react-icons/hi';
 import { LuDelete } from 'react-icons/lu';
 import { invoke } from '@tauri-apps/api';
 import { atom, useAtom } from 'jotai';
-
+import { getServiceName, getServiceSouceType, ServiceSourceType } from '../../../../utils/service_instance';
 import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../../../hooks';
 import { invoke_plugin } from '../../../../utils/invoke_plugin';
 import * as recognizeServices from '../../../../services/recognize';
@@ -28,7 +28,7 @@ let unlisten = null;
 let timer = null;
 
 export default function SourceArea(props) {
-    const { pluginList } = props;
+    const { pluginList, serviceInstanceConfigMap } = props;
     const [appFontSize] = useConfig('app_font_size', 16);
     const [sourceText, setSourceText, syncSourceText] = useSyncAtom(sourceTextAtom);
     const [detectLanguage, setDetectLanguage] = useAtom(detectLanguageAtom);
@@ -65,15 +65,20 @@ export default function SourceArea(props) {
         } else if (text === '[IMAGE_TRANSLATE]') {
             setWindowType('[IMAGE_TRANSLATE]');
             const base64 = await invoke('get_base64');
-            const serviceName = recognizeServiceList[0];
-            if (serviceName.startsWith('plugin')) {
-                if (recognizeLanguage in pluginList['recognize'][serviceName].language) {
-                    const pluginConfig = (await store.get(serviceName)) ?? {};
-                    let [func, utils] = await invoke_plugin('recognize', serviceName);
-                    func(base64, pluginList['recognize'][serviceName].language[recognizeLanguage], {
-                        config: pluginConfig,
-                        utils,
-                    }).then(
+            const serviceInstanceKey = recognizeServiceList[0];
+            if (getServiceSouceType(serviceInstanceKey) === ServiceSourceType.PLUGIN) {
+                if (recognizeLanguage in pluginList['recognize'][getServiceName(serviceInstanceKey)].language) {
+                    const pluginConfig = serviceInstanceConfigMap[serviceInstanceKey];
+
+                    let [func, utils] = await invoke_plugin('recognize', getServiceName(serviceInstanceKey));
+                    func(
+                        base64,
+                        pluginList['recognize'][getServiceName(serviceInstanceKey)].language[recognizeLanguage],
+                        {
+                            config: pluginConfig,
+                            utils,
+                        }
+                    ).then(
                         (v) => {
                             let newText = v.trim();
                             if (deleteNewline) {
@@ -100,9 +105,16 @@ export default function SourceArea(props) {
                     setSourceText('Language not supported');
                 }
             } else {
-                if (recognizeLanguage in recognizeServices[serviceName].Language) {
-                    recognizeServices[serviceName]
-                        .recognize(base64, recognizeServices[serviceName].Language[recognizeLanguage])
+                if (recognizeLanguage in recognizeServices[getServiceName(serviceInstanceKey)].Language) {
+                    const instanceConfig = serviceInstanceConfigMap[serviceInstanceKey];
+                    recognizeServices[getServiceName(serviceInstanceKey)]
+                        .recognize(
+                            base64,
+                            recognizeServices[getServiceName(serviceInstanceKey)].Language[recognizeLanguage],
+                            {
+                                config: instanceConfig,
+                            }
+                        )
                         .then(
                             (v) => {
                                 let newText = v.trim();
@@ -164,30 +176,34 @@ export default function SourceArea(props) {
     };
 
     const handleSpeak = async () => {
-        const serviceName = ttsServiceList[0];
+        const instanceKey = ttsServiceList[0];
         let detected = detectLanguage;
         if (detected === '') {
             detected = await detect(sourceText);
             setDetectLanguage(detected);
         }
-        if (serviceName.startsWith('plugin')) {
+        if (getServiceSouceType(instanceKey) === ServiceSourceType.PLUGIN) {
             if (!(detected in ttsPluginInfo.language)) {
                 throw new Error('Language not supported');
             }
-            const config = (await store.get(serviceName)) ?? {};
-            let [func, utils] = await invoke_plugin('tts', serviceName);
+            const pluginConfig = serviceInstanceConfigMap[instanceKey];
+            let [func, utils] = await invoke_plugin('tts', getServiceName(instanceKey));
             let data = await func(sourceText, ttsPluginInfo.language[detected], {
-                config,
+                config: pluginConfig,
                 utils,
             });
             speak(data);
         } else {
-            if (!(detected in builtinTtsServices[serviceName].Language)) {
+            if (!(detected in builtinTtsServices[getServiceName(instanceKey)].Language)) {
                 throw new Error('Language not supported');
             }
-            let data = await builtinTtsServices[serviceName].tts(
+            const instanceConfig = serviceInstanceConfigMap[instanceKey];
+            let data = await builtinTtsServices[getServiceName(instanceKey)].tts(
                 sourceText,
-                builtinTtsServices[serviceName].Language[detected]
+                builtinTtsServices[getServiceName(instanceKey)].Language[detected],
+                {
+                    config: instanceConfig,
+                }
             );
             speak(data);
         }
@@ -208,8 +224,8 @@ export default function SourceArea(props) {
     }, [hideWindow]);
 
     useEffect(() => {
-        if (ttsServiceList && ttsServiceList[0].startsWith('plugin')) {
-            readTextFile(`plugins/tts/${ttsServiceList[0]}/info.json`, {
+        if (ttsServiceList && getServiceSouceType(ttsServiceList[0]) === ServiceSourceType.PLUGIN) {
+            readTextFile(`plugins/tts/${getServiceName(ttsServiceList[0])}/info.json`, {
                 dir: BaseDirectory.AppConfig,
             }).then((infoStr) => {
                 setTtsPluginInfo(JSON.parse(infoStr));

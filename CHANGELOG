@@ -1,10 +1,20 @@
-## 2.7.10 (2024-04-14)
+## 3.0.5 (2024-06-27)
 
 ### Break Change:
 
--   如果更新后遇到闪退问题请重新安装所有插件的最新版本
+-   3.x版本之后旧版插件不再可用，升级后会自动删除旧版插件，请前往插件仓库下载安装新版插件使用，若插件开发者还没适配新版插件，请联系插件开发者升级插件。
+-   After version 3.x, old plugins will no longer be available. They will be automatically deleted upon upgrade. Please visit the plugin repository to download and install the new versions. If the plugin developers have not yet updated their plugins, please contact them to request an upgrade.
+
+### New feature:
+
+-   support multiple instance service
+-   use javascript plugin system
+-   enable dev tools
+-   add database api for plugin
 
 ### Bugs fixed:
 
--   Check whether the directory is not empty before uninstall([`e88f2db`](https://github.com/pot-app/pot-desktop/commit/e88f2dbe0846ea61e4a48c290faa7dbc0dd2d549)) (by @Pylogmon)
--   repair openai translation prompt description (#731)([`780c499`](https://github.com/pot-app/pot-desktop/commit/780c499d494002ef2e76175ae5fa27c883b6ec3c)) (by @zggsong)
+-   recognize failed
+-   tts failed
+-   collection failed
+-   default lingva error

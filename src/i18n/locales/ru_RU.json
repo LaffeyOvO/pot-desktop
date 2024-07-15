@@ -49,7 +49,7 @@
                 "check_update": "Проверка обновлений",
                 "server_port": "Порт прослушивания",
                 "server_port_change": "Порт прослушивания был изменён. Перезапустите приложение, чтобы изменения вступили в силу",
-                "app_language": "Язык приложения",
+                "app_language": "Язык интерфейса",
                 "app_theme": "Тема",
                 "font_size": {
                     "14": "Мелкий (14 пикс.)",
@@ -87,7 +87,8 @@
                 },
                 "default_font": "По умолчанию",
                 "app_font": "Шрифт",
-                "app_fallback_font": "Резервный шрифт"
+                "app_fallback_font": "Резервный шрифт",
+                "dev_mode": "Режим разработчика"
             },
             "translate": {
                 "label": "Перевести",
@@ -146,7 +147,7 @@
                 "label": "Горячие клавиши",
                 "title": "Настройки горячих клавиш",
                 "selection_translate": "Перевод выделенного",
-                "input_translate": "Ввести для перевода",
+                "input_translate": "Перевод текста",
                 "ocr_recognize": "Распознавание текста",
                 "ocr_translate": "Перевод скриншота",
                 "is_register": "Горячая клавиша уже назначена",
@@ -180,7 +181,7 @@
                 "type": "Тип сервиса",
                 "webdav": "WebDav",
                 "local": "Локально",
-                "webdav_url": "Ссылка WebDav",
+                "webdav_url": "WebDav ссылка",
                 "username": "Имя пользователя",
                 "password": "Пароль",
                 "backup": "Бэкап",
@@ -192,7 +193,7 @@
                 "aliyun": "Aliyun Drive",
                 "logout": "Выйти",
                 "login_success": "Вход выполнен",
-                "aliyun_login_first": "Для входа отсканируйте код"
+                "aliyun_login_first": "Для входа отсканируйте код."
             },
             "about": {
                 "label": "О программе",
@@ -308,7 +309,7 @@
                     "key": "Key"
                 },
                 "bing_dict": {
-                    "title": "Словарь Bing"
+                    "title": "Bing Dictionary"
                 },
                 "cambridge_dict": {
                     "title": "Кембриджский словарь"
@@ -349,6 +350,9 @@
                     "not_installed": "Эта модель ещё не установлена, нажмите, чтобы загрузить и установить",
                     "stream": "Потоковый режим",
                     "install_ollama_link": "Загрузить Ollama"
+                },
+                "ecdict": {
+                    "title": "ECDict (Online)"
                 }
             },
             "recognize": {

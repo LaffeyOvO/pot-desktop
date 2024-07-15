@@ -8,7 +8,7 @@
     },
     "package": {
         "productName": "pot",
-        "version": "2.7.10"
+        "version": "3.0.5"
     },
     "tauri": {
         "allowlist": {
@@ -35,18 +35,27 @@
             "http": {
                 "all": true,
                 "request": true,
-                "scope": ["http://**", "https://**"]
+                "scope": [
+                    "http://**",
+                    "https://**"
+                ]
             },
             "os": {
                 "all": true
             },
             "protocol": {
                 "asset": true,
-                "assetScope": ["$CACHE/**", "$CONFIG/**"]
+                "assetScope": [
+                    "$CACHE/**",
+                    "$CONFIG/**"
+                ]
             },
             "fs": {
                 "all": true,
-                "scope": ["$APPCONFIG/**", "$APPCACHE/**"]
+                "scope": [
+                    "$APPCONFIG/**",
+                    "$APPCACHE/**"
+                ]
             },
             "dialog": {
                 "open": true,
@@ -71,7 +80,12 @@
                 "icons/icon.ico"
             ],
             "deb": {
-                "depends": ["libxdo-dev", "libxcb1", "libxrandr2", "tesseract-ocr"]
+                "depends": [
+                    "libxdo-dev",
+                    "libxcb1",
+                    "libxrandr2",
+                    "tesseract-ocr"
+                ]
             },
             "macOS": {
                 "entitlements": null,
@@ -102,7 +116,7 @@
             "active": true,
             "dialog": false,
             "endpoints": [
-                "https://gh.pylogmon.com/https://github.com/pot-app/pot-desktop/releases/download/updater/update.json",
+                "https://dl.pot-app.com/https://github.com/pot-app/pot-desktop/releases/download/updater/update.json",
                 "https://github.com/pot-app/pot-desktop/releases/download/updater/update.json"
             ],
             "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDVBRTQxQTNDQjM5QzQzM0EKUldRNlE1eXpQQnJrV21mM1Bram5LRlF6UDA3K0Jab2FYL2lZSWhXTE5McWs2NUdJS0dtYkd5VGMK"

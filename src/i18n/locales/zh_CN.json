@@ -49,10 +49,10 @@
                 "check_update": "启动时检查更新",
                 "server_port": "监听端口",
                 "server_port_change": "监听端口已更改，重启应用生效",
-                "app_language": "应用语言",
+                "app_language": "显示语言",
                 "app_theme": "应用主题",
                 "app_font": "字体",
-                "app_fallback_font": "回滚字体",
+                "app_fallback_font": "后备字体",
                 "font_size": {
                     "title": "字体大小",
                     "10": "极小 (10px)",
@@ -70,6 +70,7 @@
                     "system": "跟随系统"
                 },
                 "transparent": "透明效果",
+                "dev_mode": "开发模式",
                 "proxy": {
                     "title": "网络代理",
                     "host": "代理地址",
@@ -290,6 +291,9 @@
                 },
                 "yandex": {
                     "title": "Yandex"
+                },
+                "ecdict": {
+                    "title": "ECDict(在线)"
                 },
                 "transmart": {
                     "title": "腾讯交互翻译",

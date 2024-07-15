@@ -1,16 +1,14 @@
 import { fetch } from '@tauri-apps/api/http';
-import { store } from '../../../utils/store';
 
 export async function tts(text, lang, options = {}) {
     const { config } = options;
 
-    let lingvaConfig = (await store.get('lingva_tts')) ?? { requestPath: 'lingva.pot-app.com' };
+    let { requestPath = 'lingva.pot-app.com' } = config;
 
-    if (config !== undefined) {
-        lingvaConfig = config;
+    if (requestPath.length === 0) {
+        requestPath = 'lingva.pot-app.com';
     }
 
-    let { requestPath } = lingvaConfig;
     if (!requestPath.startsWith('http')) {
         requestPath = 'https://' + requestPath;
     }
