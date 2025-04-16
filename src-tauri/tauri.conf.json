@@ -8,7 +8,7 @@
     },
     "package": {
         "productName": "pot",
-        "version": "3.0.5"
+        "version": "3.0.6"
     },
     "tauri": {
         "allowlist": {
@@ -80,6 +80,14 @@
                 "icons/icon.ico"
             ],
             "deb": {
+                "depends": [
+                    "libxdo-dev",
+                    "libxcb1",
+                    "libxrandr2",
+                    "tesseract-ocr"
+                ]
+            },
+            "rpm": {
                 "depends": [
                     "libxdo-dev",
                     "libxcb1",
